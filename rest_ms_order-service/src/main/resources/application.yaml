@@ -1,0 +1,17 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: rest-ms-order-service
+
+  r2dbc:
+    url: ${ORDER_DB_URL:r2dbc:postgresql://localhost:5432/ms_order_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:admin}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
