@@ -10,6 +10,9 @@ spring:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:admin}
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
 management:
   endpoints:
     web:

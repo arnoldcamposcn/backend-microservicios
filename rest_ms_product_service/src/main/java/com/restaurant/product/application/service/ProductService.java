@@ -42,4 +42,32 @@ public class ProductService implements ProductUseCase {
     public Mono<Void> deleteProduct(Long id) {
         return productRepositoryPort.deleteById(id);
     }
+
+    @Override
+    public Mono<Product> decrementStock(
+            Long productId,
+            Integer quantity) {
+
+        return productRepositoryPort.findById(productId)
+                .flatMap(product -> {
+
+                    if (product.getStock() < quantity) {
+                        return Mono.error(
+                                new IllegalStateException(
+                                        "Insufficient stock for product: "
+                                                + productId
+                                )
+                        );
+                    }
+
+                    int newStock =
+                            product.getStock() - quantity;
+
+                    product.setStock(newStock);
+
+                    product.setAvailable(newStock > 0);
+
+                    return productRepositoryPort.save(product);
+                });
+    }
 }

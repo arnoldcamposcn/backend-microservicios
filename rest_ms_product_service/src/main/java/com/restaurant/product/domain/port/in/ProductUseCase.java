@@ -15,4 +15,6 @@ public interface ProductUseCase {
     Mono<Product> updateProduct(Long id, Product product);
 
     Mono<Void> deleteProduct(Long id);
+
+    Mono<Product> decrementStock(Long productId, Integer quantity);
 }
