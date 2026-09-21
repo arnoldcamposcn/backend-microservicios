@@ -13,8 +13,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 @Tag(
-        name = "Órdenes",
-        description = "Operaciones para crear, consultar y actualizar órdenes"
+        name = "Órdenes del restaurante",
+        description = "Registro, consulta y seguimiento de las órdenes realizadas"
 )
 public class OrderController {
 
@@ -22,8 +22,8 @@ public class OrderController {
 
     @PostMapping
     @Operation(
-            summary = "Crear una orden",
-            description = "Registra una orden en estado PENDING_STOCK y publica su creación en Kafka."
+            summary = "Crear una orden desde un carrito",
+            description = "Registra la orden en estado PENDING_STOCK y solicita validar su inventario."
     )
     public Mono<Order> createOrder(@RequestBody Order order) {
         return orderUseCase.createOrder(order);
@@ -31,8 +31,8 @@ public class OrderController {
 
     @GetMapping
     @Operation(
-            summary = "Listar órdenes",
-            description = "Obtiene todas las órdenes o las filtra por el estado indicado."
+            summary = "Listar órdenes realizadas",
+            description = "Obtiene las órdenes del restaurante o las filtra por su estado."
     )
     public Flux<Order> getOrders(
             @RequestParam(required = false) String status) {
@@ -46,7 +46,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     @Operation(
-            summary = "Consultar una orden",
+            summary = "Consultar el detalle de una orden",
             description = "Obtiene una orden junto con sus productos, total y estado actual."
     )
     public Mono<Order> getOrder(@PathVariable Long id) {
@@ -55,8 +55,8 @@ public class OrderController {
 
     @PatchMapping("/{id}/status")
     @Operation(
-            summary = "Actualizar el estado",
-            description = "Actualiza el estado operativo de una orden existente."
+            summary = "Actualizar el estado de una orden",
+            description = "Actualiza el estado operativo para dar seguimiento a la orden."
     )
     public Mono<Order> updateStatus(
             @PathVariable Long id,

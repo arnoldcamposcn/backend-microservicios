@@ -12,16 +12,16 @@ public class OpenApiConfig {
     public OpenAPI orderOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Microservicio de Órdenes")
+                        .title("Microservicio de Gestión de Órdenes")
                         .description("""
-                                API reactiva responsable del ciclo de vida de \
-                                las órdenes del restaurante. Permite crear y \
-                                consultar órdenes, filtrarlas por estado y \
-                                actualizar su estado. Al crear una orden la \
-                                persiste en PostgreSQL y publica un evento en \
-                                Kafka; posteriormente actualiza la orden como \
-                                confirmada o rechazada según el resultado del \
-                                procesamiento de stock.
+                                Registra las órdenes generadas a partir de los \
+                                productos seleccionados en un carrito. Calcula \
+                                subtotales y total, almacena la orden en \
+                                PostgreSQL y publica su creación mediante \
+                                Kafka. La orden comienza en estado PENDING_STOCK \
+                                y posteriormente cambia a CONFIRMED o REJECTED \
+                                según el resultado de la validación del \
+                                inventario.
                                 """)
                         .version("1.0.0"));
     }

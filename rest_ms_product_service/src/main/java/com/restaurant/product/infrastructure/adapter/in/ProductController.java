@@ -13,8 +13,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 @Tag(
-        name = "Productos",
-        description = "Operaciones para administrar el catálogo y el inventario"
+        name = "Productos del menú",
+        description = "Administración del menú y del inventario del restaurante"
 )
 public class ProductController {
 
@@ -22,8 +22,8 @@ public class ProductController {
 
     @GetMapping
     @Operation(
-            summary = "Listar productos",
-            description = "Obtiene todos los productos registrados en el catálogo."
+            summary = "Listar productos del menú",
+            description = "Obtiene todos los productos disponibles en el catálogo del restaurante."
     )
     public Flux<Product> getProducts() {
         return productUseCase.getProducts();
@@ -40,8 +40,8 @@ public class ProductController {
 
     @PostMapping
     @Operation(
-            summary = "Crear un producto",
-            description = "Registra un nuevo producto con su información comercial y stock inicial."
+            summary = "Registrar un producto",
+            description = "Registra un producto del menú con su precio, categoría y stock inicial."
     )
     public Mono<Product> createProduct(@RequestBody Product product) {
         return productUseCase.createProduct(product);
@@ -49,8 +49,8 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @Operation(
-            summary = "Actualizar un producto",
-            description = "Reemplaza la información del producto identificado por su ID."
+            summary = "Actualizar producto y stock",
+            description = "Actualiza la información comercial y el inventario del producto."
     )
     public Mono<Product> updateProduct(
             @PathVariable Long id,

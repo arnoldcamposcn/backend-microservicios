@@ -13,8 +13,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
 @Tag(
-        name = "Carritos",
-        description = "Operaciones para administrar carritos almacenados en Redis"
+        name = "Carrito de pedido",
+        description = "Preparación temporal de los productos que formarán una orden"
 )
 public class CartController {
 
@@ -22,8 +22,8 @@ public class CartController {
 
     @GetMapping("/{cartId}")
     @Operation(
-            summary = "Consultar un carrito",
-            description = "Obtiene los productos y el total del carrito indicado."
+            summary = "Consultar el carrito de pedido",
+            description = "Obtiene los productos seleccionados y el total actual del pedido."
     )
     public Mono<Cart> getCart(@PathVariable String cartId) {
         return cartUseCase.getCart(cartId);
@@ -31,8 +31,8 @@ public class CartController {
 
     @PostMapping("/{cartId}/items")
     @Operation(
-            summary = "Agregar un producto",
-            description = "Agrega un producto al carrito o incrementa su cantidad si ya existe."
+            summary = "Agregar un producto al pedido",
+            description = "Agrega un producto al carrito o incrementa la cantidad seleccionada."
     )
     public Mono<Cart> addItem(
             @PathVariable String cartId,
@@ -60,8 +60,8 @@ public class CartController {
 
     @DeleteMapping("/{cartId}/items/{productId}")
     @Operation(
-            summary = "Retirar un producto",
-            description = "Elimina un producto del carrito y recalcula el total."
+            summary = "Retirar un producto del pedido",
+            description = "Retira un producto del carrito y recalcula el total del pedido."
     )
     public Mono<Cart> removeItem(
             @PathVariable String cartId,
@@ -72,8 +72,8 @@ public class CartController {
 
     @DeleteMapping("/{cartId}")
     @Operation(
-            summary = "Vaciar un carrito",
-            description = "Elimina completamente el carrito almacenado en Redis."
+            summary = "Vaciar el carrito de pedido",
+            description = "Elimina completamente la selección temporal almacenada en Redis."
     )
     public Mono<Void> clearCart(@PathVariable String cartId) {
         return cartUseCase.clearCart(cartId);

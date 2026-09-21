@@ -12,15 +12,15 @@ public class OpenApiConfig {
     public OpenAPI cartOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Microservicio de Carritos")
+                        .title("Microservicio de Carrito de Pedido")
                         .description("""
-                                API reactiva responsable de administrar los \
-                                carritos de compra temporales del restaurante \
-                                en Redis. Permite consultar un carrito, agregar \
-                                productos, modificar cantidades, retirar \
-                                productos y vaciarlo. El carrito se elimina \
-                                automáticamente cuando Kafka notifica que el \
-                                stock de una orden fue confirmado.
+                                Administra la selección temporal de productos \
+                                que un cliente desea incluir en su pedido. \
+                                Permite agregar productos, modificar cantidades, \
+                                retirar productos y calcular el total del \
+                                carrito. Los carritos se almacenan temporalmente \
+                                en Redis y se eliminan únicamente cuando Kafka \
+                                confirma el inventario de la orden.
                                 """)
                         .version("1.0.0"));
     }

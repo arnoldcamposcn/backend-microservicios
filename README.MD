@@ -1,8 +1,19 @@
-Restaurant Microservices
+Sistema de Gestión de Pedidos para Restaurante
 
-Backend para la gestión de productos, carritos y órdenes de un restaurante, desarrollado bajo una arquitectura de microservicios.
+Backend reactivo basado en microservicios para administrar el menú, preparar
+carritos de pedido, registrar órdenes, validar inventario y consultar el estado
+de los pedidos de un restaurante.
 
 El proyecto utiliza Java 17, Spring Boot, Spring WebFlux, R2DBC, PostgreSQL, Redis, Apache Kafka y Spring Cloud Gateway, aplicando Arquitectura Hexagonal y principios SOLID.
+
+Flujo de negocio
+
+1. El restaurante administra los productos del menú y su inventario.
+2. El cliente selecciona productos y cantidades en un carrito de pedido.
+3. El carrito se utiliza para registrar una nueva orden.
+4. Product MS valida y descuenta el inventario.
+5. La orden queda `CONFIRMED` o `REJECTED`.
+6. Las órdenes realizadas pueden consultarse y filtrarse por estado.
 
 Arquitectura
 
@@ -51,9 +62,9 @@ Arquitectura
 Servicios
 
 Servicio	Puerto	Persistencia / Comunicación
-Product Microservice	8081	PostgreSQL + R2DBC + Kafka Consumer/Producer
-Cart Microservice	8082	Redis + Kafka Consumer
-Order Microservice	8083	PostgreSQL + R2DBC + Kafka Producer/Consumer
+Productos e Inventario	8081	PostgreSQL + R2DBC + Kafka Consumer/Producer
+Carrito de Pedido	8082	Redis + Kafka Consumer
+Gestión de Órdenes	8083	PostgreSQL + R2DBC + Kafka Producer/Consumer
 API Gateway	8080	Spring Cloud Gateway
 Apache Kafka	9092	Event Broker
 
@@ -206,9 +217,9 @@ Documentación de APIs
 
 Cada microservicio publica su contrato OpenAPI y su interfaz Swagger UI:
 
-* Product MS: `http://localhost:8081/swagger-ui.html`
-* Cart MS: `http://localhost:8082/swagger-ui.html`
-* Order MS: `http://localhost:8083/swagger-ui.html`
+* Productos e Inventario: `http://localhost:8081/swagger-ui.html`
+* Carrito de Pedido: `http://localhost:8082/swagger-ui.html`
+* Gestión de Órdenes: `http://localhost:8083/swagger-ui.html`
 
 La documentación incluye el propósito de cada microservicio y la descripción
 de todas sus operaciones REST.
