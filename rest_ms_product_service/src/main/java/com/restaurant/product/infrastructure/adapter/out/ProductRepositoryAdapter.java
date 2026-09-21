@@ -35,6 +35,15 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
     }
 
     @Override
+    public Mono<Boolean> decrementStock(
+            Long productId,
+            Integer quantity) {
+
+        return repository.decrementStock(productId, quantity)
+                .map(updatedRows -> updatedRows > 0);
+    }
+
+    @Override
     public Mono<Void> deleteById(Long id) {
         return repository.deleteById(id);
     }

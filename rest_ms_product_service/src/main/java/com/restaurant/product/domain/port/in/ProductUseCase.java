@@ -1,8 +1,11 @@
 package com.restaurant.product.domain.port.in;
 
 import com.restaurant.product.domain.model.Product;
+import com.restaurant.product.domain.model.StockAdjustment;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface ProductUseCase {
 
@@ -16,5 +19,8 @@ public interface ProductUseCase {
 
     Mono<Void> deleteProduct(Long id);
 
-    Mono<Product> decrementStock(Long productId, Integer quantity);
+    Mono<Void> processOrderStock(
+            Long orderId,
+            List<StockAdjustment> adjustments
+    );
 }

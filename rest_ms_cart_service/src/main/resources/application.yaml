@@ -12,6 +12,13 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.restaurant.cart.infrastructure.messaging.event.StockResultEvent
+        spring.json.trusted.packages: com.restaurant.cart.infrastructure.messaging.event
 
 management:
   endpoints:

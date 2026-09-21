@@ -5,17 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCreatedEvent {
+public class StockResultEvent {
 
     private Long orderId;
-
     private String cartId;
-
-    private List<OrderItemEvent> items;
+    private String status;
+    private String reason;
 }

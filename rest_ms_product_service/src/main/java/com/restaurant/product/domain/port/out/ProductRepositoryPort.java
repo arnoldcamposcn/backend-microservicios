@@ -12,5 +12,7 @@ public interface ProductRepositoryPort {
 
     Mono<Product> save(Product product);
 
+    Mono<Boolean> decrementStock(Long productId, Integer quantity);
+
     Mono<Void> deleteById(Long id);
 }

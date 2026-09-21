@@ -3,17 +3,14 @@ package com.restaurant.order.application.service;
 import com.restaurant.order.domain.model.Order;
 import com.restaurant.order.domain.model.OrderItem;
 import com.restaurant.order.domain.port.in.OrderUseCase;
+import com.restaurant.order.domain.port.out.OrderEventPublisherPort;
 import com.restaurant.order.domain.port.out.OrderRepositoryPort;
-import com.restaurant.order.infrastructure.messaging.event.OrderCreatedEvent;
-import com.restaurant.order.infrastructure.messaging.event.OrderItemEvent;
-import com.restaurant.order.infrastructure.messaging.producer.OrderEventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +18,7 @@ public class OrderService implements OrderUseCase {
 
     private final OrderRepositoryPort orderRepositoryPort;
 
-    private final OrderEventProducer orderEventProducer;
+    private final OrderEventPublisherPort orderEventPublisherPort;
 
     @Override
     public Mono<Order> createOrder(Order order) {
@@ -30,11 +27,13 @@ public class OrderService implements OrderUseCase {
 
         calculateTotal(order);
 
-        order.setStatus("RECEIVED");
+        order.setStatus("PENDING_STOCK");
 
         return orderRepositoryPort.save(order)
-                .doOnSuccess(savedOrder ->
-                        publishOrderCreatedEvent(savedOrder)
+                .flatMap(savedOrder ->
+                        orderEventPublisherPort
+                                .publishOrderCreated(savedOrder)
+                                .thenReturn(savedOrder)
                 );
     }
 
@@ -56,25 +55,6 @@ public class OrderService implements OrderUseCase {
     @Override
     public Mono<Order> updateStatus(Long id, String status) {
         return orderRepositoryPort.updateStatus(id, status);
-    }
-
-    private void publishOrderCreatedEvent(Order order) {
-
-        List<OrderItemEvent> items = order.getItems()
-                .stream()
-                .map(item -> new OrderItemEvent(
-                        item.getProductId(),
-                        item.getQuantity()
-                ))
-                .toList();
-
-        OrderCreatedEvent event = new OrderCreatedEvent(
-                order.getId(),
-                order.getCartId(),
-                items
-        );
-
-        orderEventProducer.publishOrderCreated(event);
     }
 
     private void calculateSubtotals(Order order) {

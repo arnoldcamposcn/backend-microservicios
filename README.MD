@@ -32,21 +32,28 @@ Arquitectura
                                                   │   :9092   │
                                                   └─────┬─────┘
                                                         │
-                                      ┌─────────────────┴─────────────────┐
-                                      │                                   │
-                                      ▼                                   ▼
-                               ┌──────────────┐                    ┌──────────────┐
-                               │  Product MS  │                    │    Cart MS   │
-                               │ Decrement    │                    │  Clear Cart  │
-                               │    Stock     │                    │              │
-                               └──────────────┘                    └──────────────┘
+                                                        ▼
+                                                ┌──────────────┐
+                                                │  Product MS  │
+                                                │ Decrement    │
+                                                │    Stock     │
+                                                └──────┬───────┘
+                                                       │
+                                         confirmed / rejected
+                                                       │
+                                              ┌────────┴────────┐
+                                              ▼                 ▼
+                                       ┌──────────────┐  ┌──────────────┐
+                                       │    Cart MS   │  │   Order MS   │
+                                       │  Clear Cart  │  │ Update State │
+                                       └──────────────┘  └──────────────┘
 
 Servicios
 
 Servicio	Puerto	Persistencia / Comunicación
-Product Microservice	8081	PostgreSQL + R2DBC + Kafka Consumer
+Product Microservice	8081	PostgreSQL + R2DBC + Kafka Consumer/Producer
 Cart Microservice	8082	Redis + Kafka Consumer
-Order Microservice	8083	PostgreSQL + R2DBC + Kafka Producer
+Order Microservice	8083	PostgreSQL + R2DBC + Kafka Producer/Consumer
 API Gateway	8080	Spring Cloud Gateway
 Apache Kafka	9092	Event Broker
 
@@ -67,14 +74,22 @@ API Gateway :8080
   │
   └──► Order MS :8083 ────► PostgreSQL
                               │
-                              │ OrderCreatedEvent
+                              │ restaurant.order.created
                               ▼
                            Kafka :9092
                               │
-                       ┌──────┴──────┐
-                       ▼             ▼
-                 Product MS      Cart MS
-                 Reduce stock    Clear cart
+                              ▼
+                         Product MS
+                         Reduce stock
+                              │
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+          stock.confirmed        stock.rejected
+                    │                   │
+               ┌────┴────┐              ▼
+               ▼         ▼           Order MS
+           Cart MS    Order MS        REJECTED
+           Clear      CONFIRMED
 
 Evento OrderCreatedEvent
 
@@ -95,12 +110,20 @@ El evento contiene información como:
   ]
 }
 
-Los microservicios consumidores procesan el evento de forma independiente:
+Product MS consume el evento e intenta reducir el stock de todos los
+productos dentro de una transacción.
 
-* Product MS: reduce el stock de los productos.
-* Cart MS: limpia el carrito asociado a la orden.
+Si el stock se procesa correctamente, publica:
 
-Cada consumidor utiliza su propio Consumer Group, permitiendo que ambos reciban y procesen el mismo evento.
+restaurant.stock.confirmed
+
+Order MS cambia la orden a `CONFIRMED` y Cart MS limpia el carrito.
+
+Si algún producto no tiene stock, Product MS publica:
+
+restaurant.stock.rejected
+
+Order MS cambia la orden a `REJECTED` y el carrito se conserva.
 
 Flujo principal
 
@@ -113,15 +136,22 @@ Flujo principal
 3. Order MS
       │
       ├──► Guarda Order en PostgreSQL
-      │
-      └──► Publica OrderCreatedEvent
+      │    status: PENDING_STOCK
+      └──► Publica restaurant.order.created
                     │
                     ▼
                  Kafka
-                /     \
-               ▼       ▼
-        Product MS    Cart MS
-        stock - qty   clear cart
+                    │
+                    ▼
+               Product MS
+              /           \
+             ▼             ▼
+    stock.confirmed   stock.rejected
+         │                  │
+      ┌──┴──┐               ▼
+      ▼     ▼            Order MS
+    Cart  Order          REJECTED
+    clear CONFIRMED
 
 Persistencia
 
@@ -171,6 +201,48 @@ Tecnologías
 * Arquitectura Hexagonal
 * Principios SOLID
 * Comunicación asíncrona basada en eventos
+
+Infraestructura local
+
+El archivo `docker-compose.yml` levanta Kafka y Redis para ejecutar los
+microservicios desde el entorno local:
+
+Antes de iniciar todo el proyecto, PostgreSQL debe estar disponible en
+`localhost:5432` con las bases `ms_product_db` y `ms_order_db`.
+
+En Windows, el script raíz inicia Kafka, Redis y abre una terminal para cada
+microservicio:
+
+```powershell
+.\start-all.ps1
+```
+
+Si la política de ejecución de PowerShell bloquea el script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start-all.ps1
+```
+
+También es posible levantar únicamente la infraestructura:
+
+```bash
+docker compose up -d
+docker compose ps
+```
+
+Kafka queda disponible en `localhost:9092` y Redis en `localhost:6379`.
+PostgreSQL no forma parte del Compose: las bases `ms_product_db` y
+`ms_order_db`, junto con sus tablas, se administran manualmente.
+
+Para detener la infraestructura:
+
+```bash
+docker compose down
+```
+
+Los volúmenes `kafka_data` y `redis_data` conservan la información entre
+reinicios. Para eliminarlos expresamente se puede ejecutar
+`docker compose down -v`.
 
 Estructura del proyecto
 
