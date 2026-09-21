@@ -12,8 +12,18 @@ public class OpenApiConfig {
     public OpenAPI productOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Product Service API")
-                        .description("API para la gestión de productos")
+                        .title("Microservicio de Productos")
+                        .description("""
+                                API reactiva responsable del catálogo y del \
+                                inventario del restaurante. Permite crear, \
+                                consultar, actualizar y eliminar productos, \
+                                administrando su precio, categoría, \
+                                disponibilidad y cantidad en stock. También \
+                                procesa eventos de órdenes mediante Kafka para \
+                                descontar inventario de forma transaccional e \
+                                idempotente, y publica el resultado de la \
+                                validación de stock.
+                                """)
                         .version("1.0.0"));
     }
 }

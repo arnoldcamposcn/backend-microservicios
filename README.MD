@@ -202,6 +202,17 @@ Tecnologías
 * Principios SOLID
 * Comunicación asíncrona basada en eventos
 
+Documentación de APIs
+
+Cada microservicio publica su contrato OpenAPI y su interfaz Swagger UI:
+
+* Product MS: `http://localhost:8081/swagger-ui.html`
+* Cart MS: `http://localhost:8082/swagger-ui.html`
+* Order MS: `http://localhost:8083/swagger-ui.html`
+
+La documentación incluye el propósito de cada microservicio y la descripción
+de todas sus operaciones REST.
+
 Infraestructura local
 
 El archivo `docker-compose.yml` levanta Kafka y Redis para ejecutar los
